@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>사과게임 (Apple Game)</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="container">
+    <div id="comboBadge" class="combo-badge">0 COMBO!</div>
+    <header>
+      <div class="title">🍎 사과게임</div>
+      <div class="stats-bar">
+        <div class="stat-item">⏱️ <span id="timer">120</span>s</div>
+        <div class="stat-item">🏆 <span id="score">0</span></div>
+      </div>
+    </header>
+
+    <div class="board-container" id="boardContainer">
+      <div class="board" id="board"></div>
+      <div class="selection-overlay" id="selectionOverlay"></div>
+      <div class="sum-indicator" id="sumIndicator">0</div>
+    </div>
+
+    <!-- 시작 화면 -->
+    <div class="screen" id="startScreen">
+      <h2>🍎 사과게임</h2>
+      <p>드래그하여 **직사각형 영역**을 만드세요.<br>선택한 사과 수의 **합이 정확히 10**이 되면 제거됩니다!</p>
+      <button class="btn" id="startBtn">게임 시작</button>
+    </div>
+
+    <!-- 게임 종료 화면 -->
+    <div class="screen" id="gameOverScreen" style="display: none;">
+      <h2>TIME OVER!</h2>
+      <p id="finalStats">최종 점수: 0점</p>
+      <button class="btn" id="restartBtn">다시 하기</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

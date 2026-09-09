@@ -1,0 +1,246 @@
+:root {
+  --bg-color: #f7f9fa;
+  --primary-color: #ff4d4d;
+  --primary-hover: #e63939;
+  --accent-color: #2ec4b6;
+  --text-color: #2b2d42;
+  --cell-size: 38px;
+  --grid-cols: 17;
+  --grid-rows: 10;
+}
+
+* {
+  box-sizing: border-box;
+  user-select: none;
+  -webkit-user-select: none;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+.container {
+  background: white;
+  padding: 24px;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  max-width: 100vw;
+}
+
+header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--primary-color);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.stats-bar {
+  display: flex;
+  gap: 16px;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.stat-item {
+  background: #f1f3f5;
+  padding: 8px 14px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.combo-badge {
+  position: absolute;
+  top: -12px;
+  right: 24px;
+  background: #ff9f1c;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-weight: 800;
+  font-size: 0.9rem;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 10px rgba(255, 159, 28, 0.4);
+}
+
+.combo-badge.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* 게임 보드 영역 */
+.board-container {
+  position: relative;
+  touch-action: none;
+}
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(var(--grid-cols), var(--cell-size));
+  grid-template-rows: repeat(var(--grid-rows), var(--cell-size));
+  gap: 2px;
+  background: #e9ecef;
+  padding: 4px;
+  border-radius: 8px;
+  position: relative;
+}
+
+.apple {
+  width: var(--cell-size);
+  height: var(--cell-size);
+  background-color: #fff0f0;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: #d63031;
+  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.1);
+  transition: transform 0.1s ease, background-color 0.1s ease;
+  position: relative;
+}
+
+.apple::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  width: 4px;
+  height: 5px;
+  background-color: #6c5ce7;
+  border-radius: 2px;
+}
+
+.apple.selected {
+  background-color: #ffe3e3;
+  transform: scale(0.92);
+}
+
+.apple.removed {
+  visibility: hidden;
+}
+
+/* 드래그 영역 오버레이 */
+.selection-overlay {
+  position: absolute;
+  border: 2px solid var(--primary-color);
+  background-color: rgba(255, 77, 77, 0.2);
+  border-radius: 4px;
+  pointer-events: none;
+  display: none;
+  box-sizing: border-box;
+}
+
+.selection-overlay.valid {
+  border-color: var(--accent-color);
+  background-color: rgba(46, 196, 182, 0.25);
+}
+
+/* 실시간 합계 표시 플로팅 인디케이터 */
+.sum-indicator {
+  position: absolute;
+  background: var(--text-color);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  pointer-events: none;
+  display: none;
+  transform: translate(-50%, -120%);
+  z-index: 10;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* 오버레이 화면 (시작/종료) */
+.screen {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  z-index: 20;
+}
+
+.screen h2 {
+  font-size: 2rem;
+  color: var(--primary-color);
+}
+
+.screen p {
+  color: #6c757d;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.btn {
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 12px 28px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  border-radius: 30px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(255, 77, 77, 0.3);
+  transition: all 0.2s ease;
+}
+
+.btn:hover {
+  background: var(--primary-hover);
+  transform: translateY(-2px);
+}
+
+/* 모바일/태블릿 반응형 */
+@media (max-width: 720px) {
+  :root {
+    --cell-size: 22px;
+  }
+  .container {
+    padding: 12px;
+  }
+  .title {
+    font-size: 1.1rem;
+  }
+  .stats-bar {
+    font-size: 0.9rem;
+    gap: 8px;
+  }
+  .apple {
+    font-size: 0.8rem;
+  }
+  .apple::before {
+    height: 3px;
+    width: 2px;
+  }
+}
