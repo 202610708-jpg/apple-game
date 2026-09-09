@@ -1,44 +1,48 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>사과게임 (Apple Game)</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JS Mini DOOM - Enhanced Version</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <div class="container">
-    <div id="comboBadge" class="combo-badge">0 COMBO!</div>
-    <header>
-      <div class="title">🍎 사과게임</div>
-      <div class="stats-bar">
-        <div class="stat-item">⏱️ <span id="timer">120</span>s</div>
-        <div class="stat-item">🏆 <span id="score">0</span></div>
-      </div>
-    </header>
+    <div id="game-frame">
+        <!-- 3D Render Screen -->
+        <canvas id="viewScreen" width="320" height="200"></canvas>
+        
+        <!-- Minimap Overlay -->
+        <canvas id="minimap" width="80" height="80"></canvas>
 
-    <div class="board-container" id="boardContainer">
-      <div class="board" id="board"></div>
-      <div class="selection-overlay" id="selectionOverlay"></div>
-      <div class="sum-indicator" id="sumIndicator">0</div>
+        <!-- UI Overlays -->
+        <div id="crosshair"></div>
+        <div id="weapon-container">
+            <div id="muzzle-flash"></div>
+            <div id="weapon"></div>
+        </div>
+
+        <!-- DOOM HUD -->
+        <div id="hud">
+            <div class="hud-block"><span class="hud-title">AMMO</span><span id="ammoVal">50</span></div>
+            <div class="hud-block"><span class="hud-title">HEALTH</span><span id="healthVal">100%</span></div>
+            
+            <div id="doomguy-face">
+                <div class="eye eye-left"></div>
+                <div class="eye eye-right"></div>
+                <div class="mouth"></div>
+            </div>
+
+            <div class="hud-block"><span class="hud-title">ARMOR</span><span>50%</span></div>
+            <div class="hud-block"><span class="hud-title">KILLS</span><span id="killVal">0</span></div>
+        </div>
     </div>
 
-    <!-- 시작 화면 -->
-    <div class="screen" id="startScreen">
-      <h2>🍎 사과게임</h2>
-      <p>드래그하여 **직사각형 영역**을 만드세요.<br>선택한 사과 수의 **합이 정확히 10**이 되면 제거됩니다!</p>
-      <button class="btn" id="startBtn">게임 시작</button>
+    <div id="controls-info">
+        이동: <key>W</key><key>S</key> | 회전: <key>A</key><key>D</key> 또는 <key>←</key><key>→</key> | 사격: <key>Space</key> / 마우스 클릭<br>
+        <i>* 왼쪽 위에 <b>미니맵</b>이 표시됩니다 (빨간 점: 적, 화살표: 플레이어)</i>
     </div>
 
-    <!-- 게임 종료 화면 -->
-    <div class="screen" id="gameOverScreen" style="display: none;">
-      <h2>TIME OVER!</h2>
-      <p id="finalStats">최종 점수: 0점</p>
-      <button class="btn" id="restartBtn">다시 하기</button>
-    </div>
-  </div>
-
-  <script src="script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
