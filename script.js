@@ -1,7 +1,7 @@
 // --- 설정 및 상태 변수 ---
 const COLS = 17;
 const ROWS = 10;
-const GAME_TIME = 150; // 기본 시간을 120초 -> 150초(2분 30초)로 증량
+const GAME_TIME = 150; // 150초 (2분 30초)
 const PENALTY_TIME = 10; // 틀렸을 때 차감할 시간 (10초)
 const BASE_SCORE_PER_APPLE = 10;
 const COMBO_TIMEOUT = 2000; // 콤보 유지 시간 (2초)
@@ -36,7 +36,6 @@ function playSound(type) {
     osc.start(now);
     osc.stop(now + 0.1);
   } else if (type === 'fail') {
-    // 실패 사운드: 조금 더 낮고 경고 느낌이 들도록 조정
     osc.type = 'sawtooth';
     osc.frequency.setValueAtTime(180, now);
     osc.frequency.linearRampToValueAtTime(90, now + 0.2);
@@ -59,14 +58,34 @@ const startScreen = document.getElementById('startScreen');
 const gameOverScreen = document.getElementById('gameOverScreen');
 const finalStats = document.getElementById('finalStats');
 
-// --- 보드 생성 및 초기화 ---
+// --- 보드 생성 및 초기화 (같은 숫자는 인접 영역에서 최대 2개까지만 허용) ---
 function initBoard() {
   boardEl.innerHTML = '';
   boardData = [];
+  
+  // 전체 셀 수(170개)를 채우되, 각 숫자(1~9)가 짝을 이루도록 배치
   for (let r = 0; r < ROWS; r++) {
     const row = [];
     for (let c = 0; c < COLS; c++) {
-      const val = Math.floor(Math.random() * 9) + 1; // 1~9 사이의 정수
+      let val;
+      let valid = false;
+
+      // 같은 숫자가 인접(위, 왼쪽)에 3개 이상 연속되지 않도록 검증
+      while (!valid) {
+        val = Math.floor(Math.random() * 9) + 1; // 1~9 사이 숫자
+        
+        const left1 = c > 0 ? row[c - 1]?.val : null;
+        const left2 = c > 1 ? row[c - 2]?.val : null;
+        const top1 = r > 0 ? boardData[r - 1][c]?.val : null;
+        const top2 = r > 1 ? boardData[r - 2][c]?.val : null;
+
+        // 가로/세로로 3연속 동일 숫자가 나오지 않도록 방지 (최대 2개까지만 허용)
+        if ((val === left1 && val === left2) || (val === top1 && val === top2)) {
+          continue;
+        }
+        valid = true;
+      }
+
       const appleEl = document.createElement('div');
       appleEl.className = 'apple';
       appleEl.textContent = val;
@@ -210,7 +229,6 @@ function handleDragEnd() {
       }
     }
 
-    // 성공 판정 (합계가 10인 경우)
     if (currentSum === 10 && selectedApples.length > 0) {
       selectedApples.forEach(apple => {
         apple.removed = true;
@@ -223,9 +241,7 @@ function handleDragEnd() {
       scoreEl.textContent = score;
 
       playSound('pop');
-    } 
-    // 오답 판정 (합계가 10이 아닌 경우 & 사과가 1개 이상 선택된 경우)
-    else if (selectedApples.length > 0) {
+    } else if (selectedApples.length > 0) {
       playSound('fail');
       applyTimePenalty();
     }
@@ -236,12 +252,11 @@ function handleDragEnd() {
   currentCell = null;
 }
 
-// --- 시간 차감 패널티 함수 ---
+// --- 시간 차감 패널티 ---
 function applyTimePenalty() {
   timeLeft = Math.max(0, timeLeft - PENALTY_TIME);
   timerEl.textContent = timeLeft;
 
-  // 타이머 텍스트에 붉은색 번쩍임 시각 효과 부여
   timerEl.style.color = '#ff4d4d';
   timerEl.style.transform = 'scale(1.2)';
   timerEl.style.transition = 'all 0.1s ease';
@@ -251,7 +266,6 @@ function applyTimePenalty() {
     timerEl.style.transform = '';
   }, 300);
 
-  // 차감 결과 시간이 0초 이하가 되면 즉시 게임 종료
   if (timeLeft <= 0) {
     endGame();
   }
