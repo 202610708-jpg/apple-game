@@ -58,34 +58,14 @@ const startScreen = document.getElementById('startScreen');
 const gameOverScreen = document.getElementById('gameOverScreen');
 const finalStats = document.getElementById('finalStats');
 
-// --- 보드 생성 및 초기화 (같은 숫자는 인접 영역에서 최대 2개까지만 허용) ---
+// --- 보드 생성 및 초기화 ---
 function initBoard() {
   boardEl.innerHTML = '';
   boardData = [];
-  
-  // 전체 셀 수(170개)를 채우되, 각 숫자(1~9)가 짝을 이루도록 배치
   for (let r = 0; r < ROWS; r++) {
     const row = [];
     for (let c = 0; c < COLS; c++) {
-      let val;
-      let valid = false;
-
-      // 같은 숫자가 인접(위, 왼쪽)에 3개 이상 연속되지 않도록 검증
-      while (!valid) {
-        val = Math.floor(Math.random() * 9) + 1; // 1~9 사이 숫자
-        
-        const left1 = c > 0 ? row[c - 1]?.val : null;
-        const left2 = c > 1 ? row[c - 2]?.val : null;
-        const top1 = r > 0 ? boardData[r - 1][c]?.val : null;
-        const top2 = r > 1 ? boardData[r - 2][c]?.val : null;
-
-        // 가로/세로로 3연속 동일 숫자가 나오지 않도록 방지 (최대 2개까지만 허용)
-        if ((val === left1 && val === left2) || (val === top1 && val === top2)) {
-          continue;
-        }
-        valid = true;
-      }
-
+      const val = Math.floor(Math.random() * 9) + 1; // 1~9 사이의 정수
       const appleEl = document.createElement('div');
       appleEl.className = 'apple';
       appleEl.textContent = val;
@@ -122,11 +102,26 @@ function getSelectedBounds() {
   };
 }
 
+// 유효한 선택인지 검증하는 핵심 헬퍼 함수 (합 10 또는 동일한 숫자 2개)
+function isValidSelection(selectedApples) {
+  if (selectedApples.length === 0) return false;
+
+  const currentSum = selectedApples.reduce((acc, apple) => acc + apple.val, 0);
+  
+  // 조건 1: 선택한 사과의 숫자의 합이 10인 경우
+  const isSumTen = (currentSum === 10);
+
+  // 조건 2: 선택된 사과가 '정확히 2개'이고 '두 숫자가 같은' 경우
+  const isSamePair = (selectedApples.length === 2 && selectedApples[0].val === selectedApples[1].val);
+
+  return isSumTen || isSamePair;
+}
+
 function updateSelectionUI() {
   const bounds = getSelectedBounds();
   if (!bounds) return;
 
-  let currentSum = 0;
+  const selectedApples = [];
 
   for (let r = 0; r < ROWS; r++) {
     for (let c = 0; c < COLS; c++) {
@@ -137,13 +132,14 @@ function updateSelectionUI() {
 
       if (isSelected) {
         apple.el.classList.add('selected');
-        currentSum += apple.val;
+        selectedApples.push(apple);
       } else {
         apple.el.classList.remove('selected');
       }
     }
   }
 
+  // UI 박스 위치 계산
   const startEl = boardData[bounds.minRow][bounds.minCol].el;
   const endEl = boardData[bounds.maxRow][bounds.maxCol].el;
   const boardRect = boardContainer.getBoundingClientRect();
@@ -161,13 +157,16 @@ function updateSelectionUI() {
   selectionOverlay.style.height = `${height}px`;
   selectionOverlay.style.display = 'block';
 
-  if (currentSum === 10) {
+  // 두 가지 조건 중 하나라도 만족하면 청록색 테두리로 하이라이트
+  if (isValidSelection(selectedApples)) {
     selectionOverlay.classList.add('valid');
   } else {
     selectionOverlay.classList.remove('valid');
   }
 
-  sumIndicator.textContent = currentSum;
+  // 실시간 정보 표시 (합계 및 개수)
+  const currentSum = selectedApples.reduce((acc, apple) => acc + apple.val, 0);
+  sumIndicator.textContent = `합: ${currentSum} (${selectedApples.length}개)`;
   sumIndicator.style.top = `${top}px`;
   sumIndicator.style.left = `${left + width / 2}px`;
   sumIndicator.style.display = 'block';
@@ -216,20 +215,19 @@ function handleDragEnd() {
 
   const bounds = getSelectedBounds();
   if (bounds) {
-    let currentSum = 0;
     const selectedApples = [];
 
     for (let r = bounds.minRow; r <= bounds.maxRow; r++) {
       for (let c = bounds.minCol; c <= bounds.maxCol; c++) {
         const apple = boardData[r][c];
         if (!apple.removed) {
-          currentSum += apple.val;
           selectedApples.push(apple);
         }
       }
     }
 
-    if (currentSum === 10 && selectedApples.length > 0) {
+    // 조건 판정: 합이 10이거나 동일한 숫자 2개인 경우
+    if (isValidSelection(selectedApples)) {
       selectedApples.forEach(apple => {
         apple.removed = true;
         apple.el.classList.add('removed');
@@ -241,7 +239,9 @@ function handleDragEnd() {
       scoreEl.textContent = score;
 
       playSound('pop');
-    } else if (selectedApples.length > 0) {
+    } 
+    // 조건에 맞지 않는 경우 시간 차감 패널티
+    else if (selectedApples.length > 0) {
       playSound('fail');
       applyTimePenalty();
     }
